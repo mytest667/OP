@@ -109,48 +109,22 @@
 
 			partition@50000 {
 				label = "firmware";
-				reg = <0x50000 0xf80000>;
+				reg = <0x50000 0xfe0000>;
 				compatible = "denx,uimage";
 			};
 
-			partition@fd0000 {
-				label = "nvram";
-				reg = <0xfd0000 0x10000>;
-				read-only;
-			};
-
-			partition@fe0000 {
-				label = "art";
-				reg = <0xfe0000 0x10000>;
-				read-only;
-
-				nvmem-layout {
-					compatible = "fixed-layout";
-					#address-cells = <1>;
-					#size-cells = <1>;
-
-					calibration_art_1000: calibration@1000 {
-						reg = <0x1000 0x440>;
-					};
-
-					calibration_art_5000: calibration@5000 {
-						reg = <0x5000 0x440>;
-					};
-				};
-			};
-
 			partition@ff0000 {
-				label = "addr";
+				label = "art";
 				reg = <0xff0000 0x10000>;
 				read-only;
-
+				
 				nvmem-layout {
 					compatible = "fixed-layout";
 					#address-cells = <1>;
 					#size-cells = <1>;
 
-					macaddr_addr_0: macaddr@0 {
-						compatible = "mac-base";
+					macaddr_art_0: macaddr@0 {
+					    compatible = "mac-base";
 						reg = <0x0 0x6>;
 						#nvmem-cell-cells = <1>;
 					};
@@ -160,32 +134,10 @@
 	};
 };
 
-&pcie {
-	status = "okay";
-
-	ath9k: wifi@0,0 {
-		compatible = "pci168c,0030";
-		reg = <0x0000 0 0 0 0>;
-		nvmem-cells = <&macaddr_addr_0 0x10>, <&calibration_art_5000>;
-		nvmem-cell-names = "mac-address", "calibration";
-		#gpio-cells = <2>;
-		gpio-controller;
-	};
-};
-
-&usb {
-	status = "okay";
-};
-
-&usb_phy {
-	status = "okay";
-};
-
 &wmac {
 	status = "okay";
 
-	nvmem-cells = <&macaddr_addr_0 0>, <&calibration_art_1000>;
-	nvmem-cell-names = "mac-address", "calibration";
+	mtd-cal-data = <&art 0x1000>;
 };
 
 &mdio0 {
@@ -201,7 +153,7 @@
 
 	pll-data = <0xe000000 0x04000101 0x04001313>;
 
-	nvmem-cells = <&macaddr_addr_0 0x21>;
+	nvmem-cells = <&macaddr_art_0 0>;
 	nvmem-cell-names = "mac-address";
 
 	phy-mode = "rgmii-rxid";
