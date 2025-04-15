@@ -124,10 +124,14 @@
 					#size-cells = <1>;
 
 					macaddr_art_0: macaddr@0 {
-					    compatible = "mac-base";
+						compatible = "mac-base";
 						reg = <0x0 0x6>;
 						#nvmem-cell-cells = <1>;
 					};
+
+					calibration_art_1000: calibration@1000 {
+						reg = <0x1000 0x440>;
+					};				
 				};
 			};
 		};
@@ -137,7 +141,8 @@
 &wmac {
 	status = "okay";
 
-	mtd-cal-data = <&art 0x1000>;
+	nvmem-cells = <&macaddr_art_0 1>, <&calibration_art_1000>;
+	nvmem-cell-names = "mac-address", "calibration";
 };
 
 &mdio0 {
