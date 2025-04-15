@@ -3108,8 +3108,7 @@ define Device/winchannel_wb2000
   DEVICE_VENDOR := Winchannel
   DEVICE_MODEL := WB2000
   IMAGE_SIZE := 15872k
-  DEVICE_PACKAGES := kmod-i2c-gpio kmod-rtc-ds1307 kmod-usb2 \
-	kmod-usb-ledtrig-usbport
+  DEVICE_PACKAGES := kmod-i2c-gpio
 endef
 TARGET_DEVICES += winchannel_wb2000
 
