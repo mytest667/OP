@@ -9,77 +9,61 @@
 	model = "Winchannel WB2000";
 	compatible = "winchannel,wb2000", "qca,ar9344";
 
-	chosen {
-		bootargs = "console=ttyS0,115200n8";
-	};
+		keys {
+		compatible = "gpio-keys";
 
-	aliases {
-		led-boot = &led_system;
-		led-failsafe = &led_system;
-		led-running = &led_system;
-		led-upgrade = &led_system;
+		reset {
+			label = "reset";
+			gpios = <&gpio 16 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_RESTART>;
+		};
 	};
 
 	i2c {
 		compatible = "i2c-gpio";
-		gpios = <&gpio 17 GPIO_ACTIVE_HIGH
-			 &gpio 16 GPIO_ACTIVE_HIGH
-			>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		rtc@68 {
-			compatible = "dallas,ds1339";
-			reg = <0x68>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&enable_gpio15 &enable_gpio19>;
+
+		sda-gpios = <&gpio 19 GPIO_ACTIVE_LOW>;
+		scl-gpios = <&gpio 15 GPIO_ACTIVE_LOW>;
+
+		/* can be removed on 4.19 */
+		gpios = <&gpio 19 GPIO_ACTIVE_LOW>,
+			<&gpio 15 GPIO_ACTIVE_LOW>;
+
+		pcf8563: pcf8563@51 {
+			compatible = "nxp,pcf8563";
+			reg = <0x51>;
+			#clock-cells = <0>;
 		};
 	};
 
 	leds {
 		compatible = "gpio-leds";
 
-		wlan2g {
-			label = "green:2g";
-			gpios = <&gpio 20 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&enable_gpio20_gpio22>;
+
+		wifi {
+			label = "wb2000:green:wifi";
+			gpios = <&gpio 12 GPIO_ACTIVE_LOW>;
 			linux,default-trigger = "phy0tpt";
 		};
 
-		usb {
-			label = "green:usb";
-			gpios = <&gpio 21 GPIO_ACTIVE_HIGH>;
-			trigger-sources = <&hub_port>;
-			linux,default-trigger = "usbport";
+		lan1 {
+			label = "wb2000:orange:lan1";
+			gpios = <&gpio 20 GPIO_ACTIVE_LOW>;
 		};
 
-		led_system: system {
-			label = "green:system";
+		lan2 {
+			label = "wb2000:orange:lan2";
 			gpios = <&gpio 22 GPIO_ACTIVE_LOW>;
-			default-state = "on";
 		};
+
 	};
-
-	keys {
-		compatible = "gpio-keys";
-
-		reset {
-			linux,code = <KEY_RESTART>;
-			gpios = <&gpio 3 GPIO_ACTIVE_LOW>;
-			debounce-interval = <60>;
-		};
-	};
-
-	ath9k-leds {
-		compatible = "gpio-leds";
-
-		wlan {
-			label = "green:5g";
-			gpios = <&ath9k 6 GPIO_ACTIVE_LOW>;
-			linux,default-trigger = "phy1tpt";
-		};
-	};
-};
-
-&ref {
-	clock-frequency = <40000000>;
 };
 
 &spi {
@@ -109,7 +93,7 @@
 
 			partition@50000 {
 				label = "firmware";
-				reg = <0x50000 0xfe0000>;
+				reg = <0x50000 0xfa0000>;
 				compatible = "denx,uimage";
 			};
 
@@ -117,22 +101,6 @@
 				label = "art";
 				reg = <0xff0000 0x10000>;
 				read-only;
-				
-				nvmem-layout {
-					compatible = "fixed-layout";
-					#address-cells = <1>;
-					#size-cells = <1>;
-
-					macaddr_art_0: macaddr@0 {
-						compatible = "mac-base";
-						reg = <0x0 0x6>;
-						#nvmem-cell-cells = <1>;
-					};
-
-					calibration_art_1000: calibration@1000 {
-						reg = <0x1000 0x440>;
-					};				
-				};
 			};
 		};
 	};
@@ -140,35 +108,14 @@
 
 &wmac {
 	status = "okay";
-
-	nvmem-cells = <&macaddr_art_0 1>, <&calibration_art_1000>;
-	nvmem-cell-names = "mac-address", "calibration";
-};
-
-&mdio0 {
-	status = "okay";
-
-	phy4: ethernet-phy@4 {
-		reg = <4>;
-	};
+	mtd-cal-data = <&art 0x1000>;
+	mtd-mac-address = <&art 0x1002>;
 };
 
 &eth0 {
 	status = "okay";
-
-	pll-data = <0xe000000 0x04000101 0x04001313>;
-
-	nvmem-cells = <&macaddr_art_0 0>;
-	nvmem-cell-names = "mac-address";
-
-	phy-mode = "rgmii-rxid";
 	phy-handle = <&phy4>;
-
-	gmac-config {
-		device = <&gmac>;
-		rgmii-gmac0 = <1>;
-		rxd-delay = <1>;
-		rxdv-delay = <1>;
-	};
+	mtd-mac-address = <&art 0x0>;
 };
+
 
