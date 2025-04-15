@@ -92,7 +92,6 @@
 
 &eth0 {
 	status = "okay";
-	phy-handle = <&phy4>;
 	mtd-mac-address = <&art 0x0>;
 };
 
