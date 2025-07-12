@@ -5,3 +5,4 @@ src-git telephony https://git.openwrt.org/feed/telephony.git
 #src-git kiddin9 https://github.com/kiddin9/openwrt-packages
 #src-git kenzo https://github.com/kenzok8/openwrt-packages
 #src-git small https://github.com/kenzok8/small
+#https://ghfast.top/https://raw.githubusercontent.com/free18/v2ray/refs/heads/main/v.txt
